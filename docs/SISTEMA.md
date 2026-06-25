@@ -201,4 +201,5 @@ sequenceDiagram
 - **Dependency Injection**: `Depends(get_db)` injeta a sessão do banco em cada rota.
 - **Separação MVC**: facilita manutenção, testes e trabalho em equipe.
 
+Para entender o framework web em detalhes, consulte [FASTAPI.md](FASTAPI.md).  
 Para executar o sistema com Docker, consulte [EXECUTAR_DOCKER.md](EXECUTAR_DOCKER.md).

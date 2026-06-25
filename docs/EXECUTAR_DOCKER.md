@@ -277,4 +277,5 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 - [ ] Imagem publicada no Docker Hub (opcional)
 
 Para entender a arquitetura do código, leia [SISTEMA.md](SISTEMA.md).  
+Para aprender FastAPI, leia [FASTAPI.md](FASTAPI.md).  
 Para conceitos de containers, leia [DOCKER.md](DOCKER.md).
