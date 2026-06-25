@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRUD de Produtos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">P</div>
+        <div>
+          <h1>Produtos</h1>
+          <p>CRUD · FastAPI + MySQL</p>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="/" class="nav-item active">Dashboard</a>
+        <a href="/docs" class="nav-item" target="_blank">API Docs</a>
+        <a href="/health" class="nav-item" target="_blank">Status API</a>
+      </nav>
+      <div class="sidebar-footer">
+        <span class="status-dot" id="api-status"></span>
+        <span id="api-status-text">Verificando API...</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div>
+          <h2>Gerenciamento de Produtos</h2>
+          <p>Crie, edite, liste e exclua produtos pelo navegador.</p>
+        </div>
+        <button type="button" class="btn btn-primary" id="btn-new">
+          <span class="btn-icon">+</span>
+          Novo produto
+        </button>
+      </header>
+
+      <section class="stats-grid">
+        <article class="stat-card">
+          <span class="stat-label">Total de produtos</span>
+          <strong class="stat-value" id="stat-count">—</strong>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">Itens em estoque</span>
+          <strong class="stat-value" id="stat-quantity">—</strong>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">Valor do estoque</span>
+          <strong class="stat-value" id="stat-value">—</strong>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="panel-toolbar">
+          <div class="search-box">
+            <input type="search" id="search-input" placeholder="Buscar por nome ou descrição..." autocomplete="off">
+          </div>
+          <button type="button" class="btn btn-ghost" id="btn-refresh">Atualizar</button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="products-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Descrição</th>
+                <th>Preço</th>
+                <th>Qtd.</th>
+                <th>Atualizado</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="products-body">
+              <tr class="loading-row">
+                <td colspan="7">Carregando produtos...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="empty-state hidden" id="empty-state">
+          <div class="empty-icon">📦</div>
+          <h3>Nenhum produto cadastrado</h3>
+          <p>Clique em "Novo produto" para começar.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal criar/editar -->
+  <dialog class="modal" id="product-modal">
+    <form id="product-form" method="dialog">
+      <header class="modal-header">
+        <h3 id="modal-title">Novo produto</h3>
+        <button type="button" class="btn-close" id="btn-close-modal" aria-label="Fechar">&times;</button>
+      </header>
+      <div class="modal-body">
+        <input type="hidden" id="product-id">
+        <div class="form-group">
+          <label for="product-name">Nome *</label>
+          <input type="text" id="product-name" required maxlength="100" placeholder="Ex.: Notebook Dell">
+        </div>
+        <div class="form-group">
+          <label for="product-description">Descrição</label>
+          <textarea id="product-description" rows="3" placeholder="Descrição opcional do produto"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="product-price">Preço (R$) *</label>
+            <input type="number" id="product-price" required min="0.01" step="0.01" placeholder="0,00">
+          </div>
+          <div class="form-group">
+            <label for="product-quantity">Quantidade *</label>
+            <input type="number" id="product-quantity" required min="0" step="1" placeholder="0">
+          </div>
+        </div>
+      </div>
+      <footer class="modal-footer">
+        <button type="button" class="btn btn-ghost" id="btn-cancel">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btn-save">Salvar</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- Modal confirmar exclusão -->
+  <dialog class="modal modal-sm" id="delete-modal">
+    <header class="modal-header">
+      <h3>Excluir produto</h3>
+      <button type="button" class="btn-close" id="btn-close-delete" aria-label="Fechar">&times;</button>
+    </header>
+    <div class="modal-body">
+      <p>Tem certeza que deseja excluir <strong id="delete-product-name"></strong>?</p>
+      <p class="text-muted">Esta ação não pode ser desfeita.</p>
+    </div>
+    <footer class="modal-footer">
+      <button type="button" class="btn btn-ghost" id="btn-cancel-delete">Cancelar</button>
+      <button type="button" class="btn btn-danger" id="btn-confirm-delete">Excluir</button>
+    </footer>
+  </dialog>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

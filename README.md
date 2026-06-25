@@ -19,7 +19,8 @@ Copy-Item .env.example .env   # Windows PowerShell
 docker compose up -d --build
 ```
 
-Acesse a documentação interativa: **http://localhost:8000/docs**
+Acesse o frontend: **http://localhost:8000**  
+Documentação da API: **http://localhost:8000/docs**
 
 ## Estrutura do projeto
 
@@ -31,7 +32,9 @@ Acesse a documentação interativa: **http://localhost:8000/docs**
 │   ├── models/                 # Model (MVC)
 │   ├── schemas/                # View (MVC)
 │   ├── controllers/            # Controller (MVC)
-│   └── services/               # Regras de negócio
+│   ├── services/               # Regras de negócio
+│   ├── templates/              # View HTML (frontend)
+│   └── static/                 # CSS e JavaScript
 ├── docs/
 │   ├── SISTEMA.md              # Como o sistema funciona
 │   ├── DOCKER.md               # Como o Docker funciona
