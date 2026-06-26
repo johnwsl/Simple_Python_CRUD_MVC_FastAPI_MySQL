@@ -34,6 +34,26 @@ def create_product(product_data: ProductCreate, db: Session = Depends(get_db)):
 def update_product(
     product_id: int, product_data: ProductUpdate, db: Session = Depends(get_db)
 ):
+    """Atualiza um produto (PUT — envie os campos que deseja alterar)."""
+    product = ProductService.get_by_id(db, product_id)
+    if not product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Produto com id {product_id} não encontrado.",
+        )
+    return ProductService.update(db, product, product_data)
+
+
+@router.patch("/{product_id}", response_model=ProductResponse)
+def patch_product(
+    product_id: int, product_data: ProductUpdate, db: Session = Depends(get_db)
+):
+    """Atualização parcial (PATCH — apenas os campos enviados são modificados)."""
+    if not product_data.model_dump(exclude_unset=True):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Informe ao menos um campo para atualizar.",
+        )
     product = ProductService.get_by_id(db, product_id)
     if not product:
         raise HTTPException(

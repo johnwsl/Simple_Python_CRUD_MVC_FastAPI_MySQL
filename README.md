@@ -53,6 +53,7 @@ Documentação da API: **http://localhost:8000/docs**
 | GET | `/products/{id}` | Buscar produto |
 | POST | `/products/` | Criar produto |
 | PUT | `/products/{id}` | Atualizar produto |
+| PATCH | `/products/{id}` | Atualização parcial |
 | DELETE | `/products/{id}` | Excluir produto |
 
 ## Documentação didática
