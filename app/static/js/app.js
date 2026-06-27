@@ -1,36 +1,48 @@
+/**
+ * Frontend CRUD de Produtos — consome a API REST via fetch().
+ * Arquivo carregado por index.html; init() roda automaticamente ao final.
+ */
+
+// URLs dos endpoints da API (mesmo domínio — sem CORS)
 const API = {
-  products: "/products/",
-  health: "/health",
+  products: "/products/",  // CRUD de produtos
+  health: "/health",       // Verificação de status da API
 };
 
+// Lista de produtos carregada do servidor (cache local em memória)
 let products = [];
+
+// Id do produto selecionado para exclusão (preenchido ao abrir modal de delete)
 let deleteTargetId = null;
 
+/** Atalho para document.querySelector — busca um elemento HTML pelo seletor CSS. */
 const $ = (sel) => document.querySelector(sel);
 
+// Referências aos elementos HTML usados pelo JavaScript (evita repetir querySelector)
 const els = {
-  body: $("#products-body"),
-  empty: $("#empty-state"),
-  tableWrap: $(".table-wrap"),
-  search: $("#search-input"),
-  statCount: $("#stat-count"),
-  statQuantity: $("#stat-quantity"),
-  statValue: $("#stat-value"),
-  modal: $("#product-modal"),
-  deleteModal: $("#delete-modal"),
-  form: $("#product-form"),
-  modalTitle: $("#modal-title"),
-  productId: $("#product-id"),
-  productName: $("#product-name"),
+  body: $("#products-body"),               // Corpo da tabela de produtos
+  empty: $("#empty-state"),                // Mensagem "nenhum produto"
+  tableWrap: $(".table-wrap"),             // Container da tabela
+  search: $("#search-input"),              // Campo de busca
+  statCount: $("#stat-count"),             // Card: total de produtos
+  statQuantity: $("#stat-quantity"),       // Card: itens em estoque
+  statValue: $("#stat-value"),             // Card: valor total do estoque
+  modal: $("#product-modal"),              // Modal criar/editar
+  deleteModal: $("#delete-modal"),         // Modal confirmar exclusão
+  form: $("#product-form"),                // Formulário do modal
+  modalTitle: $("#modal-title"),           // Título do modal ("Novo" ou "Editar")
+  productId: $("#product-id"),             // Campo oculto com id (vazio = criar)
+  productName: $("#product-name"),         // Input nome
   productDescription: $("#product-description"),
   productPrice: $("#product-price"),
   productQuantity: $("#product-quantity"),
-  deleteProductName: $("#delete-product-name"),
-  toastContainer: $("#toast-container"),
-  apiStatus: $("#api-status"),
-  apiStatusText: $("#api-status-text"),
+  deleteProductName: $("#delete-product-name"),  // Nome exibido no modal de delete
+  toastContainer: $("#toast-container"),   // Área de notificações
+  apiStatus: $("#api-status"),             // Bolinha verde/vermelha na sidebar
+  apiStatusText: $("#api-status-text"),    // Texto "API online/offline"
 };
 
+/** Formata número como moeda brasileira (R$ 1.234,56). */
 function formatCurrency(value) {
   return Number(value).toLocaleString("pt-BR", {
     style: "currency",
@@ -38,6 +50,7 @@ function formatCurrency(value) {
   });
 }
 
+/** Formata data ISO (2026-06-26T08:09:09) para exibição pt-BR. */
 function formatDate(iso) {
   return new Date(iso).toLocaleString("pt-BR", {
     day: "2-digit",
@@ -48,6 +61,11 @@ function formatDate(iso) {
   });
 }
 
+/**
+ * Exibe notificação temporária (toast) no canto da tela.
+ * @param {string} message - Texto da mensagem
+ * @param {string} type - "success" ou "error"
+ */
 function showToast(message, type = "success") {
   const toast = document.createElement("div");
   toast.className = `toast ${type}`;
@@ -56,6 +74,13 @@ function showToast(message, type = "success") {
   setTimeout(() => toast.remove(), 3500);
 }
 
+/**
+ * Wrapper central para chamadas HTTP à API.
+ * Usa fetch nativo; trata erros e converte JSON automaticamente.
+ * @param {string} url - Endpoint (ex.: "/products/")
+ * @param {object} options - Opções do fetch (method, body, headers...)
+ * @returns {Promise<object|null>} JSON parseado ou null se status 204
+ */
 async function apiRequest(url, options = {}) {
   const response = await fetch(url, {
     headers: { "Content-Type": "application/json", ...options.headers },
@@ -76,10 +101,14 @@ async function apiRequest(url, options = {}) {
     throw new Error(detail);
   }
 
-  if (response.status === 204) return null;
+  if (response.status === 204) return null;  // DELETE bem-sucedido
   return response.json();
 }
 
+/**
+ * Atualiza os cards de estatísticas no topo da página.
+ * @param {Array} list - Lista completa de produtos
+ */
 function updateStats(list) {
   els.statCount.textContent = list.length;
   const totalQty = list.reduce((sum, p) => sum + p.quantity, 0);
@@ -88,6 +117,7 @@ function updateStats(list) {
   els.statValue.textContent = formatCurrency(totalValue);
 }
 
+/** Filtra produtos pelo termo digitado na busca (sem chamar a API). */
 function getFilteredProducts() {
   const term = els.search.value.trim().toLowerCase();
   if (!term) return products;
@@ -98,6 +128,7 @@ function getFilteredProducts() {
   );
 }
 
+/** Renderiza linhas da tabela HTML a partir do array products. */
 function renderProducts() {
   const list = getFilteredProducts();
   updateStats(products);
@@ -138,12 +169,14 @@ function renderProducts() {
     .join("");
 }
 
+/** Escapa caracteres HTML para evitar XSS ao inserir dados na tabela. */
 function escapeHtml(text) {
   const div = document.createElement("div");
   div.textContent = text;
   return div.innerHTML;
 }
 
+/** GET /products/ — carrega produtos da API e atualiza a tabela. */
 async function loadProducts() {
   els.body.innerHTML = `<tr class="loading-row"><td colspan="7">Carregando produtos...</td></tr>`;
   try {
@@ -155,6 +188,7 @@ async function loadProducts() {
   }
 }
 
+/** GET /health — verifica se a API está online e atualiza indicador na sidebar. */
 async function checkHealth() {
   try {
     const data = await apiRequest(API.health);
@@ -166,6 +200,7 @@ async function checkHealth() {
   }
 }
 
+/** Abre modal vazio para criar novo produto (sem chamada à API). */
 function openCreateModal() {
   els.modalTitle.textContent = "Novo produto";
   els.productId.value = "";
@@ -174,6 +209,10 @@ function openCreateModal() {
   els.productName.focus();
 }
 
+/**
+ * Abre modal preenchido para editar produto existente.
+ * Usa dados do array local — não chama GET /products/{id}.
+ */
 function openEditModal(id) {
   const product = products.find((p) => p.id === id);
   if (!product) return;
@@ -188,10 +227,12 @@ function openEditModal(id) {
   els.productName.focus();
 }
 
+/** Fecha o modal de criar/editar. */
 function closeModal() {
   els.modal.close();
 }
 
+/** Abre modal de confirmação antes de excluir. */
 function openDeleteModal(id) {
   const product = products.find((p) => p.id === id);
   if (!product) return;
@@ -201,11 +242,16 @@ function openDeleteModal(id) {
   els.deleteModal.showModal();
 }
 
+/** Fecha modal de exclusão e limpa deleteTargetId. */
 function closeDeleteModal() {
   deleteTargetId = null;
   els.deleteModal.close();
 }
 
+/**
+ * Envia formulário — POST (criar) ou PUT (editar) conforme product-id.
+ * Após sucesso, recarrega a lista com loadProducts().
+ */
 async function handleSubmit(event) {
   event.preventDefault();
 
@@ -224,12 +270,14 @@ async function handleSubmit(event) {
     saveBtn.textContent = "Salvando...";
 
     if (id) {
+      // Edição — PUT /products/{id}
       await apiRequest(`${API.products}${id}`, {
         method: "PUT",
         body: JSON.stringify(payload),
       });
       showToast("Produto atualizado com sucesso!");
     } else {
+      // Criação — POST /products/
       await apiRequest(API.products, {
         method: "POST",
         body: JSON.stringify(payload),
@@ -248,6 +296,7 @@ async function handleSubmit(event) {
   }
 }
 
+/** DELETE /products/{id} — exclui produto após confirmação no modal. */
 async function handleDelete() {
   if (!deleteTargetId) return;
 
@@ -261,6 +310,7 @@ async function handleDelete() {
   }
 }
 
+/** Conecta cliques e eventos de formulário às funções correspondentes. */
 function bindEvents() {
   $("#btn-new").addEventListener("click", openCreateModal);
   $("#btn-refresh").addEventListener("click", loadProducts);
@@ -273,6 +323,7 @@ function bindEvents() {
   els.form.addEventListener("submit", handleSubmit);
   els.search.addEventListener("input", renderProducts);
 
+  // Delegação de eventos: captura cliques em Editar/Excluir na tabela
   els.body.addEventListener("click", (e) => {
     const editBtn = e.target.closest(".btn-edit");
     const deleteBtn = e.target.closest(".btn-delete");
@@ -281,6 +332,7 @@ function bindEvents() {
   });
 }
 
+/** Inicialização — executada ao carregar a página. */
 async function init() {
   bindEvents();
   await checkHealth();

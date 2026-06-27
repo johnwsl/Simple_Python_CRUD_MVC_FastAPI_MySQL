@@ -1,3 +1,5 @@
+"""Pacote de controllers — rotas HTTP (camada C do MVC)."""
+
 from app.controllers.frontend_controller import router as frontend_router
 from app.controllers.product_controller import router as product_router
 
