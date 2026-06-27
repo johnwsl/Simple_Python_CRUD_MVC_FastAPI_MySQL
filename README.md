@@ -38,6 +38,7 @@ Documentação da API: **http://localhost:8000/docs**
 ├── docs/
 │   ├── SISTEMA.md              # Como o sistema funciona
 │   ├── FASTAPI.md              # Como o FastAPI funciona
+│   ├── FRONTEND_API.md         # Frontend e chamadas aos endpoints
 │   ├── DOCKER.md               # Como o Docker funciona
 │   └── EXECUTAR_DOCKER.md      # Como executar com Docker
 ├── Dockerfile
@@ -62,6 +63,7 @@ Documentação da API: **http://localhost:8000/docs**
 |-----------|----------|
 | [docs/SISTEMA.md](docs/SISTEMA.md) | Arquitetura MVC, fluxo de requisições, banco de dados |
 | [docs/FASTAPI.md](docs/FASTAPI.md) | Como o FastAPI funciona e como implementar com Python |
+| [docs/FRONTEND_API.md](docs/FRONTEND_API.md) | Interação frontend → endpoints (fetch, eventos, CRUD) |
 | [docs/DOCKER.md](docs/DOCKER.md) | Containers, imagens, Docker Hub, Compose |
 | [docs/EXECUTAR_DOCKER.md](docs/EXECUTAR_DOCKER.md) | Passo a passo para executar e publicar |
 
